@@ -3,6 +3,7 @@ package arithmetic.calculator.api.presentation.controller;
 import arithmetic.calculator.api.presentation.dto.OperationRequestDTO;
 import arithmetic.calculator.api.presentation.dto.OperationResponseDTO;
 import arithmetic.calculator.api.service.IOperationService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +16,7 @@ public class OperationController {
     private final IOperationService operationService;
 
     @PostMapping(path = "calculate")
-    public ResponseEntity<OperationResponseDTO> calculate(@RequestBody OperationRequestDTO request) {
+    public ResponseEntity<OperationResponseDTO> calculate(@Valid @RequestBody OperationRequestDTO request) {
         return ResponseEntity.ok(operationService.calculate(request));
     }
 

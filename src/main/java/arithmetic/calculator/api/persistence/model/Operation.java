@@ -32,7 +32,10 @@ public class Operation {
 
     @PrePersist
     public void init() {
-        id = UUID.randomUUID();
+        if (id == null) {
+            id = UUID.randomUUID();
+        }
+
         timestamp = LocalDateTime.now();
     }
 

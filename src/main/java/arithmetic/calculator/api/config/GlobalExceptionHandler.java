@@ -5,10 +5,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
@@ -17,11 +17,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleMethodArgument(MethodArgumentNotValidException ex) {
-        List<String> details = ex.getBindingResult()
-                                 .getFieldErrors()
-                                 .stream()
-                                 .map(FieldError::getDefaultMessage)
-                                 .toList();
+        List<String> details = new ArrayList<>();
+        ex.getBindingResult().getFieldErrors().forEach(error -> details.add(error.getDefaultMessage()));
+        ex.getBindingResult().getGlobalErrors().forEach(error -> details.add(error.getDefaultMessage()));
 
         ErrorResponseDTO error = new ErrorResponseDTO(HttpStatus.BAD_REQUEST.value(), "Invalid operation parameters", details);
 
