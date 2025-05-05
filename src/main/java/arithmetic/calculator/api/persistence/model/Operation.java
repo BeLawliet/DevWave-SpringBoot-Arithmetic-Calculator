@@ -30,6 +30,10 @@ public class Operation {
 
     private LocalDateTime timestamp;
 
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private UserModel user;
+
     @PrePersist
     public void init() {
         if (id == null) {
@@ -39,10 +43,11 @@ public class Operation {
         timestamp = LocalDateTime.now();
     }
 
-    public Operation(EOperationType operation, BigDecimal operandA, BigDecimal operandB, BigDecimal result) {
+    public Operation(EOperationType operation, BigDecimal operandA, BigDecimal operandB, BigDecimal result, UserModel user) {
         this.operation = operation;
         this.operandA = operandA;
         this.operandB = operandB;
         this.result = result;
+        this.user = user;
     }
 }

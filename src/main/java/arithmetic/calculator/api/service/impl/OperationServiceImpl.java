@@ -1,12 +1,16 @@
 package arithmetic.calculator.api.service.impl;
 
 import arithmetic.calculator.api.persistence.model.Operation;
+import arithmetic.calculator.api.persistence.model.UserModel;
 import arithmetic.calculator.api.persistence.repository.IOperationRepository;
+import arithmetic.calculator.api.persistence.repository.IUserRepository;
 import arithmetic.calculator.api.presentation.dto.OperationRequestDTO;
 import arithmetic.calculator.api.presentation.dto.OperationResponseDTO;
 import arithmetic.calculator.api.service.IOperationService;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.MathContext;
@@ -18,6 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class OperationServiceImpl implements IOperationService {
     private final IOperationRepository operationRepository;
+    private final IUserRepository userRepository;
     private final ModelMapper modelMapper;
 
     @Override
@@ -39,7 +44,7 @@ public class OperationServiceImpl implements IOperationService {
             case SQUARE_ROOT -> BigDecimal.valueOf(Math.sqrt(opA.doubleValue())).round(new MathContext(7));
         };
 
-        Operation newRegister = new Operation(request.getOperation(), opA, opB, result);
+        Operation newRegister = new Operation(request.getOperation(), opA, opB, result, getCurrentUser());
         Operation saved = this.operationRepository.save(newRegister);
 
         return this.modelMapper.map(saved, OperationResponseDTO.class);
@@ -67,5 +72,13 @@ public class OperationServiceImpl implements IOperationService {
         this.operationRepository.delete(optOperation.get());
 
         return String.format("Operation with ID { %s } deleted", id);
+    }
+
+    private UserModel getCurrentUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        String username = auth.getName();
+
+        return this.userRepository.findByUsername(username).orElseThrow(() -> new IllegalStateException("Authenticated user not found"));
     }
 }

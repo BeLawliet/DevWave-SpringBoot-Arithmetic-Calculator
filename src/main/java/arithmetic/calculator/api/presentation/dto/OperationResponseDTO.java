@@ -20,4 +20,5 @@ public class OperationResponseDTO {
         private BigDecimal operandB;
         private BigDecimal result;
         private LocalDateTime timestamp;
+        private Long userId;
 }
