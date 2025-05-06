@@ -37,6 +37,9 @@ public class SecurityConfig {
                                http.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll();
                                http.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll();
 
+                               // Swagger endpoints
+                               http.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll();
+
                                // Others - No Specified
                                http.anyRequest().authenticated();
                            })

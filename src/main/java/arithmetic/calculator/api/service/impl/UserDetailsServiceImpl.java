@@ -28,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        UserModel userModel = this.userRepository.findByUsername(username).orElseThrow(() -> new IllegalArgumentException("Username or password incorrect"));
+        UserModel userModel = this.userRepository.findByUsername(username).orElseThrow(() -> new BadCredentialsException("Username or password incorrect"));
         return new User(userModel.getUsername(), userModel.getPassword(), true, true, true, true, List.of());
     }
 
