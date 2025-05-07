@@ -1,4 +1,4 @@
-package arithmetic.calculator.api.config;
+package arithmetic.calculator.api.advice;
 
 import arithmetic.calculator.api.presentation.dto.ErrorResponseDTO;
 import org.slf4j.Logger;
@@ -13,8 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 @ControllerAdvice
-public class GlobalExceptionHandler {
-    private static final Logger logger = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+public class AppControllerAdvice {
+    private static final Logger logger = LoggerFactory.getLogger(AppControllerAdvice.class);
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponseDTO> handleMethodArgument(MethodArgumentNotValidException ex) {
