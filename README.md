@@ -88,5 +88,10 @@ http://localhost:8080
 - `/api/auth/register`: Registro de usuarios.
 - `/api/auth/login`: Autenticación y generación de token.
 
+## Recursos Adicionales
+
+- **Colección de Postman**: Puedes utilizar la colección para probar fácilmente todos los endpoints definidos en la API.  
+  [Descargar colección de Postman](src/main/resources/static/ArithmeticCalculator-RestAPI.postman_collection.json)
+
 ## Resumen
 Este documento proporciona una visión general de la estructura del proyecto, sus componentes claves y configuraciones.
