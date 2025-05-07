@@ -1,20 +1,29 @@
 package arithmetic.calculator.api.service.impl;
 
+import arithmetic.calculator.api.persistence.model.EOperationType;
 import arithmetic.calculator.api.persistence.model.Operation;
 import arithmetic.calculator.api.persistence.model.UserModel;
 import arithmetic.calculator.api.persistence.repository.IOperationRepository;
 import arithmetic.calculator.api.persistence.repository.IUserRepository;
 import arithmetic.calculator.api.presentation.dto.OperationRequestDTO;
 import arithmetic.calculator.api.presentation.dto.OperationResponseDTO;
+import arithmetic.calculator.api.presentation.dto.PageResponseDTO;
 import arithmetic.calculator.api.service.IOperationService;
+import arithmetic.calculator.api.util.OperationSpecsUtils;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -48,6 +57,28 @@ public class OperationServiceImpl implements IOperationService {
         Operation saved = this.operationRepository.save(newRegister);
 
         return this.modelMapper.map(saved, OperationResponseDTO.class);
+    }
+
+    @Override
+    public PageResponseDTO<OperationResponseDTO> getUserHistory(EOperationType operation, LocalDateTime startDate, LocalDateTime endDate, String field, String direction, int page, int size) {
+        Sort sort = direction.equalsIgnoreCase("desc") ? Sort.by(field).descending() : Sort.by(field).ascending();
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Specification<Operation> spec = Specification.where(OperationSpecsUtils.byUser(this.getCurrentUser().getId()));
+
+        if (operation != null) {
+            spec = spec.and(OperationSpecsUtils.byOperationType(operation));
+        }
+
+        if (startDate != null && endDate != null) {
+            spec = spec.and(OperationSpecsUtils.betweenDates(startDate, endDate));
+        }
+
+        Page<Operation> resultPage = this.operationRepository.findAll(spec, pageable);
+        Page<OperationResponseDTO> mapped = resultPage.map(op -> this.modelMapper.map(op, OperationResponseDTO.class));
+
+        return new PageResponseDTO<>(mapped);
     }
 
     @Override
