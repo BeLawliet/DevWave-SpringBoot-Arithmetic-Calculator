@@ -112,6 +112,8 @@
 					<excludes>
 						<exclude>**/persistence/model/**</exclude>
 						<exclude>**/presentation/dto/**</exclude>
+						<exclude>**/config/SwaggerConfig.class</exclude>
+						<exclude>**/util/OperationSpecsUtils.class</exclude>
 					</excludes>
 				</configuration>
 				<executions>
