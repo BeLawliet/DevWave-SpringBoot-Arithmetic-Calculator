@@ -45,20 +45,23 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
         String accessToken = this.jwtUtils.createToken(authentication);
 
-        return new AuthResponseDTO(userSaved.getUsername(), "User created successfully", accessToken, true);
+        return new AuthResponseDTO(userSaved.getUsername(), "User created successfully", accessToken);
     }
 
     public AuthResponseDTO loginUser(AuthLoginDTO request) {
         String username = request.username();
         String password = request.password();
 
-        Authentication authentication = this.authenticate(username, password);
+        if (username == null || password == null) {
+            throw new IllegalArgumentException("All fields are requireds");
+        }
 
+        Authentication authentication = this.authenticate(username, password);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = this.jwtUtils.createToken(authentication);
 
-        return new AuthResponseDTO(username, "User logged successfully", accessToken, true);
+        return new AuthResponseDTO(username, "User logged successfully", accessToken);
     }
 
     private Authentication authenticate(String username, String password) {
