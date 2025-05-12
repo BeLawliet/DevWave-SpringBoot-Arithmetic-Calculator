@@ -20,9 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 
 @ExtendWith(MockitoExtension.class)
 class TokenValidationFilterTest {
-    @InjectMocks
-    private TokenValidationFilter tokenValidationFilter;
-
     @Mock
     private JwtUtils jwtUtils;
 
@@ -37,6 +34,9 @@ class TokenValidationFilterTest {
 
     @Mock
     private DecodedJWT decodedJWT;
+
+    @InjectMocks
+    private TokenValidationFilter tokenValidationFilter;
 
     @AfterEach
     void cleanContext() {

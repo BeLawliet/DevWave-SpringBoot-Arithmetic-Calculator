@@ -33,10 +33,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public AuthResponseDTO registerUser(AuthUserDTO request) {
-        if (request.username() == null || request.password() == null || request.email() == null) {
-            throw new IllegalArgumentException("All fields are requireds");
-        }
-
         UserModel newUser = new UserModel(request.username(), passwordEncoder.encode(request.password()), request.email());
 
         UserModel userSaved = this.userRepository.save(newUser);
@@ -49,30 +45,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     }
 
     public AuthResponseDTO loginUser(AuthLoginDTO request) {
-        String username = request.username();
-        String password = request.password();
-
-        if (username == null || password == null) {
-            throw new IllegalArgumentException("All fields are requireds");
-        }
-
-        Authentication authentication = this.authenticate(username, password);
+        Authentication authentication = this.authenticate(request.username(), request.password());
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         String accessToken = this.jwtUtils.createToken(authentication);
 
-        return new AuthResponseDTO(username, "User logged successfully", accessToken);
+        return new AuthResponseDTO(request.username(), "User logged successfully", accessToken);
     }
 
     private Authentication authenticate(String username, String password) {
         UserDetails userDetails = this.loadUserByUsername(username);
 
-        if (userDetails == null) {
-            throw new BadCredentialsException("Invalid username or password.");
-        }
-
         if (!passwordEncoder.matches(password, userDetails.getPassword())) {
-            throw new BadCredentialsException("Invalid username or password.");
+            throw new BadCredentialsException("Invalid username or password");
         }
 
         return new UsernamePasswordAuthenticationToken(username, userDetails.getPassword(), List.of());
