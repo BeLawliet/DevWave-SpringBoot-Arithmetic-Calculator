@@ -32,7 +32,7 @@ class OperationControllerTest {
     @Test
     void testCalculateValidRequest() throws Exception {
         // Arrange
-        OperationResponseDTO response = DataProvider.mockOperationResponse();
+        OperationResponseDTO response = DataProvider.mockAdditionResponse();
 
         String jsonRequest = """
                     {
@@ -56,7 +56,7 @@ class OperationControllerTest {
     @Test
     void testGetHistoryValidRequest() throws Exception {
         // Arrange
-        OperationResponseDTO op1 = DataProvider.mockOperationResponse();
+        OperationResponseDTO op1 = DataProvider.mockAdditionResponse();
 
         OperationResponseDTO op2 = new OperationResponseDTO();
         op2.setId(UUID.randomUUID());
@@ -89,7 +89,7 @@ class OperationControllerTest {
     @Test
     void testGetOperationByIdValidRequest() throws Exception {
         // Arrange
-        OperationResponseDTO response = DataProvider.mockOperationResponse();
+        OperationResponseDTO response = DataProvider.mockAdditionResponse();
 
         when(this.operationService.getOperationById(response.getId())).thenReturn(response);
 
