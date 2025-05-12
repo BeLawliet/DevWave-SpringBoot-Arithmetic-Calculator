@@ -3,7 +3,6 @@ package arithmetic.calculator.api.presentation.controller;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import arithmetic.calculator.api.config.filter.SecurityConfigTesting;
 import arithmetic.calculator.api.presentation.dto.AuthLoginDTO;
 import arithmetic.calculator.api.presentation.dto.AuthResponseDTO;
@@ -42,8 +41,7 @@ class AuthControllerTest {
         when(this.userDetailsService.registerUser(request)).thenReturn(response);
 
         // Act
-        mockMvc.perform(post("/api/auth/register").with(csrf())
-                                                              .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
                                                               .content(jsonRequest))
                .andExpect(status().isCreated())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -62,8 +60,7 @@ class AuthControllerTest {
         when(this.userDetailsService.loginUser(request)).thenReturn(response);
 
         // Act
-        mockMvc.perform(post("/api/auth/login").with(csrf())
-                                                           .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                                                            .content(jsonRequest))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -82,8 +79,7 @@ class AuthControllerTest {
         """;
 
         // Act
-        mockMvc.perform(post("/api/auth/login").with(csrf())
-                                                           .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                                                            .content(jsonRequest))
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -102,8 +98,7 @@ class AuthControllerTest {
         when(userDetailsService.loginUser(request)).thenThrow(new BadCredentialsException("Invalid username or password"));
 
         // Act
-        mockMvc.perform(post("/api/auth/login").with(csrf())
-                                                           .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                                                            .content(jsonRequest))
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
@@ -122,8 +117,7 @@ class AuthControllerTest {
         when(userDetailsService.loginUser(request)).thenThrow(new RuntimeException("Something went wrong"));
 
         // Act
-        mockMvc.perform(post("/api/auth/login").with(csrf())
-                                                           .contentType(MediaType.APPLICATION_JSON)
+        mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
                                                            .content(jsonRequest))
                .andExpect(status().isInternalServerError())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
