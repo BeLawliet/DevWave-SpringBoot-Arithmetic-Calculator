@@ -112,13 +112,13 @@ class AuthControllerTest {
         // Arrange
         AuthLoginDTO request = DataProvider.mockAuthLogin();
 
-        String jsonRequest = objectMapper.writeValueAsString(request);
+        String jsonRequest = this.objectMapper.writeValueAsString(request);
 
-        when(userDetailsService.loginUser(request)).thenThrow(new RuntimeException("Something went wrong"));
+        when(this.userDetailsService.loginUser(request)).thenThrow(new RuntimeException("Something went wrong"));
 
         // Act
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                                         .content(jsonRequest))
+                                                           .content(jsonRequest))
                .andExpect(status().isInternalServerError())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.status").value(500))

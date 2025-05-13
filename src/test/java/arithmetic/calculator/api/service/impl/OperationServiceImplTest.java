@@ -9,7 +9,6 @@ import arithmetic.calculator.api.persistence.repository.IUserRepository;
 import arithmetic.calculator.api.presentation.dto.OperationRequestDTO;
 import arithmetic.calculator.api.presentation.dto.OperationResponseDTO;
 import arithmetic.calculator.api.provider.DataProvider;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,8 +18,8 @@ import org.modelmapper.ModelMapper;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.Optional;
+import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
 class OperationServiceImplTest {
@@ -36,18 +35,11 @@ class OperationServiceImplTest {
     @InjectMocks
     private OperationServiceImpl operationService;
 
-    @BeforeEach
-    void setUp() {
-        Authentication authentication = mock(Authentication.class);
-        when(authentication.getName()).thenReturn("Lawliet");
-
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        when(this.userRepository.findByUsername("Lawliet")).thenReturn(Optional.of(DataProvider.mockUser()));
-    }
-
     @Test
     void testCalculateAdditionOperation() {
         // Arrange
+        this.mockAuthenticatedUser();
+
         Operation operation = DataProvider.mockOperation();
         OperationRequestDTO request = new OperationRequestDTO(EOperationType.ADDITION, BigDecimal.valueOf(5), BigDecimal.valueOf(5));
 
@@ -66,6 +58,8 @@ class OperationServiceImplTest {
     @Test
     void testCalculateSubtractionOperation() {
         // Arrange
+        this.mockAuthenticatedUser();
+
         Operation operation = DataProvider.mockOperation();
         OperationRequestDTO request = new OperationRequestDTO(EOperationType.SUBTRACTION, BigDecimal.valueOf(9), BigDecimal.valueOf(3));
 
@@ -83,6 +77,8 @@ class OperationServiceImplTest {
     @Test
     void testCalculateMultiplyOperation() {
         // Arrange
+        this.mockAuthenticatedUser();
+
         Operation operation = DataProvider.mockOperation();
         OperationRequestDTO request = new OperationRequestDTO(EOperationType.MULTIPLICATION, BigDecimal.valueOf(4), BigDecimal.valueOf(3));
 
@@ -100,6 +96,8 @@ class OperationServiceImplTest {
     @Test
     void testCalculateDivisionOperation() {
         // Arrange
+        this.mockAuthenticatedUser();
+
         Operation operation = DataProvider.mockOperation();
         OperationRequestDTO request = new OperationRequestDTO(EOperationType.DIVISION, BigDecimal.valueOf(10), BigDecimal.valueOf(4));
 
@@ -117,6 +115,8 @@ class OperationServiceImplTest {
     @Test
     void testCalculatePowerOperation() {
         // Arrange
+        this.mockAuthenticatedUser();
+
         Operation operation = DataProvider.mockOperation();
         OperationRequestDTO request = new OperationRequestDTO(EOperationType.POWER, BigDecimal.valueOf(2), BigDecimal.valueOf(3));
 
@@ -134,7 +134,7 @@ class OperationServiceImplTest {
     @Test
     void testCalculateSquareRootOperation() {
         // Arrange
-//        BigDecimal expectedResult = BigDecimal.valueOf(3.0).round(new MathContext(7));
+        this.mockAuthenticatedUser();
 
         Operation operation = DataProvider.mockOperation();
 
@@ -153,8 +153,68 @@ class OperationServiceImplTest {
     }
 
     @Test
+    void testGetOperationByIdSuccess() {
+        // Arrange
+        Operation operation = DataProvider.mockOperation();
+        UUID id = UUID.randomUUID();
+
+        when(this.operationRepository.findById(id)).thenReturn(Optional.of(operation));
+        when(this.modelMapper.map(operation, OperationResponseDTO.class)).thenReturn(DataProvider.mockAdditionResponse());
+
+        // Act
+        OperationResponseDTO response = this.operationService.getOperationById(id);
+
+        // Assert
+        assertEquals(EOperationType.ADDITION, response.getOperation());
+        assertEquals(BigDecimal.TEN, response.getResult());
+        assertEquals(1L, response.getUserId());
+    }
+
+    @Test
+    void testGetOperationByIdException() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+
+        when(this.operationRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> this.operationService.getOperationById(id));
+        assertEquals("Operation with ID { " + id + " } not found", exception.getMessage());
+    }
+
+    @Test
+    void testDelOperationByIdSuccess() {
+        // Arrange
+        Operation operation = DataProvider.mockOperation();
+        UUID id = UUID.randomUUID();
+
+        when(this.operationRepository.findById(id)).thenReturn(Optional.of(operation));
+
+        // Act
+        String result = this.operationService.delOperationById(id);
+
+        // Assert
+        verify(this.operationRepository).delete(operation);
+        assertEquals("Operation with ID { " + id + " } deleted", result);
+    }
+
+    @Test
+    void testDelOperationByIdException() {
+        // Arrange
+        UUID id = UUID.randomUUID();
+
+        when(this.operationRepository.findById(id)).thenReturn(Optional.empty());
+
+        // Assert
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> this.operationService.delOperationById(id));
+        assertEquals("Operation with ID { " + id + " } not found", exception.getMessage());
+    }
+
+    @Test
     void testCalculateException() {
         // Arrange
+        this.mockAuthenticatedUser();
+
         OperationRequestDTO request = new OperationRequestDTO(EOperationType.ADDITION, BigDecimal.valueOf(5), BigDecimal.valueOf(5));
 
         when(this.userRepository.findByUsername("Lawliet")).thenReturn(Optional.empty());
@@ -162,5 +222,13 @@ class OperationServiceImplTest {
         // Asserts
         IllegalStateException exception = assertThrows(IllegalStateException.class, () -> this.operationService.calculate(request));
         assertEquals("Authenticated user not found", exception.getMessage());
+    }
+
+    private void mockAuthenticatedUser() {
+        Authentication authentication = mock(Authentication.class);
+        when(authentication.getName()).thenReturn("Lawliet");
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+
+        when(this.userRepository.findByUsername("Lawliet")).thenReturn(Optional.of(DataProvider.mockUser()));
     }
 }

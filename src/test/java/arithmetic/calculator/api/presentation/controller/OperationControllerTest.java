@@ -133,4 +133,20 @@ class OperationControllerTest {
                .andExpect(status().isOk())
                .andExpect(content().string(expectedMessage));
     }
+
+    @Test
+    void testDelOperationBydIdException() throws Exception {
+        // Arrange
+        String expectedMessage = "Operation with ID 550e8400-e29b-41d4-a716-446655440000 deleted";
+
+        when(this.operationService.delOperationById(any())).thenThrow(new IllegalArgumentException(expectedMessage));
+
+        // Act
+        mockMvc.perform(delete("/api/history/{id}", "550e8400-e29b-41d4-a716-446655440000").header(HttpHeaders.AUTHORIZATION, this.accessToken))
+               .andExpect(status().isBadRequest())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$.status").value(400))
+               .andExpect(jsonPath("$.message").value("Invalid operation parameters"))
+               .andExpect(jsonPath("$.details[0]").value(expectedMessage));
+    }
 }
