@@ -22,14 +22,14 @@ import org.springframework.test.web.servlet.MockMvc;
 @WebMvcTest(AuthController.class)
 @Import(SecurityConfigTesting.class)
 class AuthControllerTest {
-    @MockitoBean
-    private UserDetailsServiceImpl userDetailsService;
-
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @MockitoBean
+    private UserDetailsServiceImpl userDetailsService;
 
     @Test
     void testRegisterUser() throws Exception {
@@ -42,7 +42,7 @@ class AuthControllerTest {
 
         // Act
         mockMvc.perform(post("/api/auth/register").contentType(MediaType.APPLICATION_JSON)
-                                                              .content(jsonRequest))
+                                                            .content(jsonRequest))
                .andExpect(status().isCreated())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.username").value("Lawliet"))
@@ -61,12 +61,12 @@ class AuthControllerTest {
 
         // Act
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                                           .content(jsonRequest))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.username").value("Lawliet"))
-                .andExpect(jsonPath("$.message").value("User created successfully"))
-                .andExpect(jsonPath("$.token").value("abc.def.ghi"));
+                                                         .content(jsonRequest))
+               .andExpect(status().isOk())
+               .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+               .andExpect(jsonPath("$.username").value("Lawliet"))
+               .andExpect(jsonPath("$.message").value("User created successfully"))
+               .andExpect(jsonPath("$.token").value("abc.def.ghi"));
     }
 
     @Test
@@ -80,7 +80,7 @@ class AuthControllerTest {
 
         // Act
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                                           .content(jsonRequest))
+                                                         .content(jsonRequest))
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.status").value(400))
@@ -95,11 +95,11 @@ class AuthControllerTest {
 
         String jsonRequest = objectMapper.writeValueAsString(request);
 
-        when(userDetailsService.loginUser(request)).thenThrow(new BadCredentialsException("Invalid username or password"));
+        when(this.userDetailsService.loginUser(request)).thenThrow(new BadCredentialsException("Invalid username or password"));
 
         // Act
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                                           .content(jsonRequest))
+                                                         .content(jsonRequest))
                .andExpect(status().isBadRequest())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.status").value(400))
@@ -118,7 +118,7 @@ class AuthControllerTest {
 
         // Act
         mockMvc.perform(post("/api/auth/login").contentType(MediaType.APPLICATION_JSON)
-                                                           .content(jsonRequest))
+                                                         .content(jsonRequest))
                .andExpect(status().isInternalServerError())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.status").value(500))

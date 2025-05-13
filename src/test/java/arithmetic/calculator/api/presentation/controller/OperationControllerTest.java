@@ -3,31 +3,48 @@ package arithmetic.calculator.api.presentation.controller;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import arithmetic.calculator.api.config.filter.SecurityConfigTesting;
 import arithmetic.calculator.api.persistence.model.EOperationType;
 import arithmetic.calculator.api.presentation.dto.OperationResponseDTO;
 import arithmetic.calculator.api.presentation.dto.PageResponseDTO;
 import arithmetic.calculator.api.provider.DataProvider;
 import arithmetic.calculator.api.service.IOperationService;
+import arithmetic.calculator.api.util.JwtUtils;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.context.annotation.Import;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;
 
-@WebMvcTest(OperationController.class)
-@Import(SecurityConfigTesting.class)
+@SpringBootTest
+@AutoConfigureMockMvc
+@ActiveProfiles("test")
 class OperationControllerTest {
-    @MockitoBean
-    private IOperationService operationService;
+    private String accessToken;
 
     @Autowired
     private MockMvc mockMvc;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
+    @MockitoBean
+    private IOperationService operationService;
+
+    @BeforeEach
+    void setUp() {
+        Authentication authentication = new UsernamePasswordAuthenticationToken("Lawliet", null, List.of());
+        this.accessToken = "Bearer " + this.jwtUtils.createToken(authentication);
+    }
 
     @Test
     void testCalculateValidRequest() throws Exception {
@@ -46,7 +63,8 @@ class OperationControllerTest {
 
         // Act
         mockMvc.perform(post("/api/calculate").contentType(MediaType.APPLICATION_JSON)
-                                                          .content(jsonRequest))
+                                                        .header(HttpHeaders.AUTHORIZATION, this.accessToken)
+                                                        .content(jsonRequest))
                .andExpect(status().isCreated())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.id").value("550e8400-e29b-41d4-a716-446655440000"))
@@ -74,9 +92,10 @@ class OperationControllerTest {
 
         // Act
         mockMvc.perform(get("/api/history").param("field", "timestamp")
-                                                       .param("direction", "asc")
-                                                       .param("page", "0")
-                                                       .param("size", "10"))
+                                                     .param("direction", "asc")
+                                                     .param("page", "0")
+                                                     .param("size", "10")
+                                                     .header(HttpHeaders.AUTHORIZATION, this.accessToken))
                .andExpect(status().isOk())
                .andExpect(jsonPath("$.content").isArray())
                .andExpect(jsonPath("$.content.length()").value(2))
@@ -94,7 +113,8 @@ class OperationControllerTest {
         when(this.operationService.getOperationById(response.getId())).thenReturn(response);
 
         // Act
-        mockMvc.perform(get("/api/history/{id}", response.getId()).contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/history/{id}", response.getId()).contentType(MediaType.APPLICATION_JSON)
+                                                                            .header(HttpHeaders.AUTHORIZATION, this.accessToken))
                .andExpect(status().isOk())
                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                .andExpect(jsonPath("$.id").value("550e8400-e29b-41d4-a716-446655440000"))
@@ -109,7 +129,7 @@ class OperationControllerTest {
         when(this.operationService.delOperationById(any())).thenReturn(expectedMessage);
 
         // Act
-        mockMvc.perform(delete("/api/history/{id}", "550e8400-e29b-41d4-a716-446655440000"))
+        mockMvc.perform(delete("/api/history/{id}", "550e8400-e29b-41d4-a716-446655440000").header(HttpHeaders.AUTHORIZATION, this.accessToken))
                .andExpect(status().isOk())
                .andExpect(content().string(expectedMessage));
     }
