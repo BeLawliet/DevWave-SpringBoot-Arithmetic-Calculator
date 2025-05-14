@@ -8,6 +8,7 @@ import arithmetic.calculator.api.persistence.repository.IOperationRepository;
 import arithmetic.calculator.api.persistence.repository.IUserRepository;
 import arithmetic.calculator.api.presentation.dto.OperationRequestDTO;
 import arithmetic.calculator.api.presentation.dto.OperationResponseDTO;
+import arithmetic.calculator.api.presentation.dto.PageResponseDTO;
 import arithmetic.calculator.api.provider.DataProvider;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,9 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.*;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -150,6 +155,74 @@ class OperationServiceImplTest {
         assertEquals(EOperationType.SQUARE_ROOT, response.getOperation());
         assertEquals(BigDecimal.valueOf(3.0), response.getResult());
         assertEquals(1L, response.getUserId());
+    }
+
+    @Test
+    void testGetUserHistorySortDirAsc() {
+        // Arrange
+        this.mockAuthenticatedUser();
+
+        LocalDateTime start = LocalDateTime.now().minusDays(7);
+        LocalDateTime end = LocalDateTime.now();
+        String sort = "timestamp";
+        String sortDirection = "asc";
+        int page = 0;
+        int size = 10;
+
+        Operation operation = DataProvider.mockOperation();
+        OperationResponseDTO mockResponse = DataProvider.mockAdditionResponse();
+
+        Page<Operation> mockPage = new PageImpl<>(List.of(operation));
+
+        when(this.operationRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(mockPage);
+        when(this.modelMapper.map(operation, OperationResponseDTO.class)).thenReturn(mockResponse);
+
+        // Act
+        PageResponseDTO<OperationResponseDTO> response = this.operationService.getUserHistory(null, start, end, sort, sortDirection, page, size);
+
+        // Asserts
+        assertNotNull(response);
+        assertEquals(1, response.getContent().size());
+
+        OperationResponseDTO dto = response.getContent().get(0);
+
+        assertEquals(EOperationType.ADDITION, dto.getOperation());
+        assertEquals(BigDecimal.TEN, dto.getResult());
+        assertEquals(1L, dto.getUserId());
+    }
+
+    @Test
+    void testGetUserHistorySortDirDesc() {
+        // Arrange
+        this.mockAuthenticatedUser();
+
+        EOperationType opType = EOperationType.ADDITION;
+        LocalDateTime start = LocalDateTime.now().minusDays(7);
+        String sort = "timestamp";
+        String sortDirection = "desc";
+        int page = 0;
+        int size = 10;
+
+        Operation operation = DataProvider.mockOperation();
+        OperationResponseDTO mockResponse = DataProvider.mockAdditionResponse();
+
+        Page<Operation> mockPage = new PageImpl<>(List.of(operation));
+
+        when(this.operationRepository.findAll(any(Specification.class), any(Pageable.class))).thenReturn(mockPage);
+        when(this.modelMapper.map(operation, OperationResponseDTO.class)).thenReturn(mockResponse);
+
+        // Act
+        PageResponseDTO<OperationResponseDTO> response = this.operationService.getUserHistory(opType, start, null, sort, sortDirection, page, size);
+
+        // Asserts
+        assertNotNull(response);
+        assertEquals(1, response.getContent().size());
+
+        OperationResponseDTO dto = response.getContent().get(0);
+
+        assertEquals(EOperationType.ADDITION, dto.getOperation());
+        assertEquals(BigDecimal.TEN, dto.getResult());
+        assertEquals(1L, dto.getUserId());
     }
 
     @Test
