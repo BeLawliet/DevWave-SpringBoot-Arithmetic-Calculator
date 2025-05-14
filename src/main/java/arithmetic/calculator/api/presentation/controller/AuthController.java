@@ -65,7 +65,7 @@ public class AuthController {
             )
         }
     )
-    public ResponseEntity<AuthResponseDTO> registerUser(@RequestBody AuthUserDTO request) {
+    public ResponseEntity<AuthResponseDTO> registerUser(@Valid @RequestBody AuthUserDTO request) {
         return new ResponseEntity<>(this.userDetailsService.registerUser(request), HttpStatus.CREATED);
     }
 

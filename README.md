@@ -88,6 +88,22 @@ http://localhost:8080
 - `/api/auth/register`: Registro de usuarios.
 - `/api/auth/login`: Autenticación y generación de token.
 
+## Pruebas Unitarias
+
+Este proyecto incluye pruebas unitarias para asegurar la correcta funcionalidad de los componentes clave del sistema, especialmente en la capa de servicios y controladores.
+
+### Tecnologías utilizadas:
+- **JUnit 5**: Framework de pruebas para Java.
+- **Mockito**: Biblioteca para crear objetos simulados (mocks) y realizar pruebas aisladas.
+
+### Ejecutar pruebas
+
+Puedes ejecutar todas las pruebas unitarias con el siguiente comando Maven:
+
+```bash
+mvn test
+```
+
 ## Recursos Adicionales
 
 - **Colección de Postman**: Puedes utilizar la colección para probar fácilmente todos los endpoints definidos en la API.  

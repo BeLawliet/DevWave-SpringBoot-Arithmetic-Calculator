@@ -20,7 +20,6 @@ public class AppControllerAdvice {
     public ResponseEntity<ErrorResponseDTO> handleMethodArgument(MethodArgumentNotValidException ex) {
         List<String> details = new ArrayList<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> details.add(error.getDefaultMessage()));
-        ex.getBindingResult().getGlobalErrors().forEach(error -> details.add(error.getDefaultMessage()));
 
         ErrorResponseDTO error = new ErrorResponseDTO(HttpStatus.BAD_REQUEST.value(), "Invalid operation parameters", details);
 

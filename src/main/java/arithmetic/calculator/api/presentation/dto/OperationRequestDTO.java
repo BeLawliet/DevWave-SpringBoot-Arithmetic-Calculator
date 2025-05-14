@@ -6,12 +6,16 @@ import arithmetic.calculator.api.util.annotation.SqrtNegative;
 import jakarta.annotation.Nonnull;
 import jakarta.validation.constraints.DecimalMax;
 import jakarta.validation.constraints.DecimalMin;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.math.BigDecimal;
 
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
 @DivisionByZero(message = "Division by zero is not allowed")
 @SqrtNegative(message = "Cannot calculate square root of zero or negative number")
 public class OperationRequestDTO {
