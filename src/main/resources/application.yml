@@ -1,0 +1,21 @@
+spring:
+  application:
+    name: Arithmetic Calculator
+
+#Database configurations
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+#JWT Secret Key
+security:
+  jwt:
+    secret:
+      key: 6329187940af5d0b2e7f27ff8a1cb431d00e90c919a2b875e250896b9cb3f96a
+    user:
+      generator: AUTH0JWT_BACKEND
