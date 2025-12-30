@@ -30,12 +30,12 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
+                           .cors(Customizer.withDefaults())
                            .httpBasic(Customizer.withDefaults())
                            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                            .authorizeHttpRequests(http -> {
                                // Publics
-                               http.requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll();
-                               http.requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll();
+                               http.requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll();
 
                                // Swagger endpoints
                                http.requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**", "/swagger-resources/**", "/webjars/**").permitAll();

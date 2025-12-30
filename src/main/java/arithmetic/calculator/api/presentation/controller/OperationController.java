@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin(origins = "*")
 @RequestMapping(path = "api")
 @RequiredArgsConstructor
 @Tag(
@@ -68,7 +69,7 @@ public class OperationController {
             }
     )
     public ResponseEntity<OperationResponseDTO> calculate(@Valid @RequestBody OperationRequestDTO request) {
-        return new ResponseEntity<>(operationService.calculate(request), HttpStatus.CREATED);
+        return new ResponseEntity<>(this.operationService.calculate(request), HttpStatus.CREATED);
     }
 
 
@@ -198,7 +199,7 @@ public class OperationController {
             }
     )
     public ResponseEntity<OperationResponseDTO> getOperationById(@PathVariable UUID id) {
-        return ResponseEntity.ok(operationService.getOperationById(id));
+        return ResponseEntity.ok(this.operationService.getOperationById(id));
     }
 
     @DeleteMapping(path = "history/{id}")
@@ -238,6 +239,6 @@ public class OperationController {
             }
     )
     public ResponseEntity<String> delOperationById(@PathVariable UUID id) {
-        return ResponseEntity.ok(operationService.delOperationById(id));
+        return ResponseEntity.ok(this.operationService.delOperationById(id));
     }
 }

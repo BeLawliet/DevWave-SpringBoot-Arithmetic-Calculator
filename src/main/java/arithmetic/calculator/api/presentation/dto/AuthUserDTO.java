@@ -1,3 +1,5 @@
 package arithmetic.calculator.api.presentation.dto;
 
-public record AuthUserDTO(String username, String password, String email) {}
+import jakarta.validation.constraints.NotBlank;
+
+public record AuthUserDTO(@NotBlank  String username, @NotBlank String password, @NotBlank String email) {}
